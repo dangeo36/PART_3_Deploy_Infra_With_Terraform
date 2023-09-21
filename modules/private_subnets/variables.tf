@@ -1,0 +1,10 @@
+variable "env" {}
+variable "vpc_cidr_block" {}
+variable "pri_route_cidr" {}
+variable "vpc_id" {}
+variable "nat_gateway_1" {}
+variable "nat_gateway_2" {}
+variable "subnet_3_cidr" {}
+variable "subnet_4_cidr" {}
+variable "subnet_5_cidr" {}
+variable "subnet_6_cidr" {}
