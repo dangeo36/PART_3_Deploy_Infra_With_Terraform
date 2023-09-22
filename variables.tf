@@ -1,4 +1,5 @@
 // VPC vars
+variable "region" {}
 variable "env" {}
 variable "vpc_cidr_block" {}
 
