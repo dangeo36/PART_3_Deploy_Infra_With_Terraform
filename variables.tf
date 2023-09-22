@@ -5,9 +5,6 @@ variable "vpc_cidr_block" {}
 variable "pub_route_cidr" {}
 variable "pri_route_cidr" {}
 
-variable "subnet_1_cidr" {}
-variable "subnet_2_cidr" {}
-
 variable "ami" {}
 
 variable "ports_ec2" {

@@ -5,7 +5,6 @@ variable "instance_type" {}
 variable "security_group_web" {}
 variable "subnet_1_app" {}
 variable "subnet_2_app" {}
-
 variable "iam_profile" {}
 variable "awsrds_endpoint" {}
 variable "username" {}
