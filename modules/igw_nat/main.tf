@@ -13,7 +13,7 @@ resource "aws_eip" "dg_nat_gateway_2" {
 }
 
 resource "aws_nat_gateway" "dg_nat_gw_1" {
-  allocation_id = aws_eip.dg_nat_gateway_1
+  allocation_id = aws_eip.dg_nat_gateway_1.id
   subnet_id     = var.pub_subnet_1
   tags = {
     Name = "${var.env}-nat_gw-subnet_1"
@@ -21,7 +21,7 @@ resource "aws_nat_gateway" "dg_nat_gw_1" {
 }
 
 resource "aws_nat_gateway" "dg_nat_gw_2" {
-  allocation_id = aws_eip.dg_nat_gateway_2
+  allocation_id = aws_eip.dg_nat_gateway_2.id
   subnet_id     = var.pub_subnet_2
   tags = {
     Name = "${var.env}-nat_gw-subnet_2"
