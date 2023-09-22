@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+resource "aws_s3_bucket" "dg_bucket" {
+  bucket = "dg-bucket-3-tf"
+}
+
 terraform {
   backend "s3" {
     bucket         = "dg-bucket-3-tf"             
@@ -14,9 +18,6 @@ terraform {
     region         = "us-east-1"                
     encrypt        = "true"
   }
-}
-resource "aws_s3_bucket" "dg_bucket" {
-  bucket = "dg-bucket-3-tf"
 }
 
 
@@ -34,23 +35,6 @@ module "igw_nat" {
   pub_subnet_2 = module.public_subnets.dg_public_subnet_output_2
 }
 
-module "vpc" {
-  source = "./modules/vpc"
-  env = var.env
-  vpc_cidr_block = var.vpc_cidr_block
-}
-
-module "public_subnets" {
-  source         = "./modules/public_subnets"
-  env            = var.env
-  vpc_cidr_block = var.vpc_cidr_block
-  pub_route_cidr = var.pub_route_cidr
-  subnet_1_cidr  = var.subnet_1_cidr
-  subnet_2_cidr  = var.subnet_2_cidr
-  vpc_id         = module.vpc.dg_vpc_output
-  int_gateway    = module.igw_nat.dg_igw_output
-}
-
 module "private_subnets" {
   source         = "./modules/private_subnets"
   env            = var.env
@@ -64,6 +48,33 @@ module "private_subnets" {
   nat_gateway_1  = module.igw_nat.dg_nat_gw_output_1
   nat_gateway_2  = module.igw_nat.dg_nat_gw_output_2
 }
+
+module "public_subnets" {
+  source         = "./modules/public_subnets"
+  env            = var.env
+  vpc_cidr_block = var.vpc_cidr_block
+  pub_route_cidr = var.pub_route_cidr
+  subnet_1_cidr  = var.subnet_1_cidr
+  subnet_2_cidr  = var.subnet_2_cidr
+  vpc_id         = module.vpc.dg_vpc_output
+  int_gateway    = module.igw_nat.dg_igw_output
+}
+
+module "security_group" {
+  source     = "./modules/security_group"
+  vpc_id     = module.vpc.dg_vpc_output
+  env        = var.env
+  ports_ec2  = var.ports_ec2
+  ports_alb  = var.ports_alb
+  ports_rds  = var.ports_rds
+}
+
+module "vpc" {
+  source = "./modules/vpc"
+  env = var.env
+  vpc_cidr_block = var.vpc_cidr_block
+}
+
 
 module "web_server" {
   source        = "./modules/web_server"
@@ -82,13 +93,9 @@ module "web_server" {
   depends_on         = [module.rds]
 }
 
-module "security_group" {
-  source     = "./modules/security_group"
-  vpc_id     = module.vpc.dg_vpc_output
+module "iam_role" {
+  source     = "./modules/iam_role"
   env        = var.env
-  ports_ec2  = var.ports_ec2
-  ports_alb  = var.ports_alb
-  ports_rds  = var.ports_rds
 }
 
 module "rds" {
@@ -102,9 +109,5 @@ module "rds" {
 
 }
 
-module "iam_role" {
-  source     = "./modules/iam_role"
-  env        = var.env
-}
 
 
