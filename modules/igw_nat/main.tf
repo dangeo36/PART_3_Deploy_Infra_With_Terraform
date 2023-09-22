@@ -5,11 +5,11 @@ resource "aws_internet_gateway" "dg_igw" {
   }
 }
 resource "aws_eip" "dg_nat_gateway_1" {
-  vpc = true
+  domain = "vpc"
 }
 
 resource "aws_eip" "dg_nat_gateway_2" {
-  vpc = true
+  domain = "vpc"
 }
 
 resource "aws_nat_gateway" "dg_nat_gw_1" {
