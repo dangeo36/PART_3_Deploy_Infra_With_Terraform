@@ -107,4 +107,77 @@ module "rds" {
 }
 
 
+// ALB
+
+module "alb" {
+
+  source  = "terraform-aws-modules/alb/aws"
+  version = "> 6.0"
+
+  name               = "${var.env}-alb"
+  load_balancer_type = "application"
+  vpc_id             = module.vpc.dg_vpc_output
+  subnets            = [module.public_subnets.dg_public_subnet_output_1, module.public_subnets.dg_public_subnet_output_2]
+  security_groups    = [module.security_group.dg_alb_sg_output]
+
+  //======Listeners - Redirect from http to https ===========
+  // when we enter a webiste it goes to http(80) first and then we can redirect it to https(443) if we have SSL Certificate
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0 # App1 TG associated to this listener
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+  ]
+
+  // ======Target Groups
+  target_groups = [
+    # App1 Target Group - TG Index = 0
+    {
+      name_prefix          = "app1-"
+      backend_protocol     = "HTTP"
+      backend_port         = 80
+      target_type          = "instance"
+      deregistration_delay = 10
+      # health_check = {
+      #   enabled             = true
+      #   interval            = 30
+      #   path                = "/login"
+      #   port                = "traffic-port"
+      #   healthy_threshold   = 3
+      #   unhealthy_threshold = 3
+      #   timeout             = 6
+      #   protocol            = "HTTP"
+      #   matcher             = "200-399"
+      # }
+
+      //This stickiness is required. because we are using web application, all the sessions requests will stick to 1 ec2 only. 
+      stickiness = {
+        enabled         = true
+        cookie_duration = 86400 // this is 1 day, means if the same user accesses the web application, he will be redirected to same ec2 for 1 day
+        type            = "lb_cookie"
+      }
+      protocol_version = "HTTP1"
+      # App1 Target Group - Targets
+      targets = {
+        my_app1_vm1 = {
+          target_id = module.web_server.private_instance_1
+          port      = 8080
+        },
+        my_app1_vm2 = {
+          target_id = module.web_server.private_instance_2
+          port      = 8080
+        }
+      }
+      tags = {
+        Name = "${var.env}-dg-targetgroup01"
+      } # Target Group Tags
+    },
+
+  ]
 
