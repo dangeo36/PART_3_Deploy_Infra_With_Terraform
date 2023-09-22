@@ -30,7 +30,7 @@ resource "aws_iam_policy_attachment" "policy-attach" {
 
 }
 
-resource "aws_iam_instance_profile" "dg-intance-profile" {
+resource "aws_iam_instance_profile" "dg-instance-profile" {
   name = "${var.env}-instance-profile"
   role = aws_iam_role.ec2_role.name
 }
