@@ -7,6 +7,25 @@ terraform {
   }
 }
 
+terraform {
+  backend "s3" {
+    bucket         = "dg-bucket-3-tf"             
+    key            = "default/terraform.tfstate" 
+    region         = "us-east-1"                
+    encrypt        = "true"
+  }
+}
+resource "aws_s3_bucket" "dg_bucket" {
+  bucket = "dg-bucket-3-tf"
+}
+
+
+provider "aws" {
+  region = var.region
+}
+
+
+// Resources in Modules 
 module "igw_nat" {
   source       = "./modules/igw_nat"
   env          = var.env
@@ -45,4 +64,47 @@ module "private_subnets" {
   nat_gateway_1  = module.igw_nat.dg_nat_gw_output_1
   nat_gateway_2  = module.igw_nat.dg_nat_gw_output_2
 }
+
+module "web_server" {
+  source        = "./modules/web_server"
+  env           = var.env
+  public_key    = var.public_key
+  ami           = var.ami
+  instance_type = var.instance_type
+  subnet_1_app  = module.private_subnets.dg_private_subnet_output_1
+  subnet_2_app  = module.private_subnets.dg_private_subnet_output_2
+  security_group_web = module.security_group.dg_ec2_sg_output
+  iam_profile        = module.iam_role.instance_profile
+  awsrds_endpoint    = module.rds.db_instance_endpoint
+  username           = var.username
+  password           = var.password
+  root_password      = var.root_password
+  depends_on         = [module.rds]
+}
+
+module "security_group" {
+  source     = "./modules/security_group"
+  vpc_id     = module.vpc.dg_vpc_output
+  env        = var.env
+  ports_ec2  = var.ports_ec2
+  ports_alb  = var.ports_alb
+  ports_rds  = var.ports_rds
+}
+
+module "rds" {
+  source            = "./modules/rds"
+  username          = var.username
+  password          = var.password
+  security_group_id = module.security_group.dg_rds_sg_output
+  rds_subnet_1       = module.private_subnets.dg_secure_subnet_output_1
+  rds_subnet_2       = module.private_subnets.dg_secure_subnet_output_2
+  vpc_id = module.vpc.dg_vpc_output
+
+}
+
+module "iam_role" {
+  source     = "./modules/iam_role"
+  env        = var.env
+}
+
 
