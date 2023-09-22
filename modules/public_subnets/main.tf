@@ -13,7 +13,7 @@ resource "aws_subnet" "dg_public_subnet_1" {
 resource "aws_subnet" "dg_public_subnet_2" {
   vpc_id                  = var.vpc_id
   cidr_block              = var.subnet_2_cidr
-  availability_zone       = "us-east-2a"
+  availability_zone       = "us-east-1b"
   map_public_ip_on_launch = true
   tags = {
     Name = "${var.env}-dg_public_subnet_2"
