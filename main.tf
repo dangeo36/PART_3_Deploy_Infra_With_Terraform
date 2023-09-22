@@ -106,6 +106,27 @@ module "rds" {
 
 }
 
+# ACM Module - To create and Verify SSL Certificates
+# module "acm" {
+
+#   source  = "terraform-aws-modules/acm/aws"
+#   version = "> 3.0"
+
+#   //if its a internal domain, which has dot at the end. we need to remove that like below
+#   domain_name = trimsuffix(data.aws_route53_zone.my_domain.name, ".")
+#   zone_id     = data.aws_route53_zone.my_domain.zone_id
+
+#   subject_alternative_names = [
+#     "*.dfordevops.com" // certificate will be valid for any domain which ends with .dfordevops.com
+#   ]
+#   tags = {
+#     Name = "${var.env}-dg-acm"
+#   }
+# }
+
+output "certificate_arn" {
+  value = module.acm.acm_certificate_arn
+}
 
 // ALB
 
