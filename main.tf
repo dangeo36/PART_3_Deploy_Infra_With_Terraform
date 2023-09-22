@@ -7,9 +7,6 @@ terraform {
   }
 }
 
-resource "aws_s3_bucket" "dg_bucket" {
-  bucket = "dg-bucket-3-tf"
-}
 
 terraform {
   backend "s3" {
