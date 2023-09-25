@@ -124,7 +124,7 @@ module "acm" {
     "*.devops-danny.com" // certificate will be valid for any domain which ends with .dfordevops.com
   ]
   tags = {
-    Name = "${var.env_prefix}-dg-acm"
+    Name = "${var.env}-dg-acm"
   }
 }
 
@@ -239,7 +239,7 @@ module "alb" {
 
 
   tags = {
-    Name = "${var.env_prefix}-dg-alb"
+    Name = "${var.env}-dg-alb"
   }
 
 }
