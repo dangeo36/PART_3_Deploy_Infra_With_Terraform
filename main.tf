@@ -124,9 +124,9 @@ module "rds" {
 #   }
 # }
 
-output "certificate_arn" {
-  value = module.acm.acm_certificate_arn
-}
+# output "certificate_arn" {
+#   value = module.acm.acm_certificate_arn
+# }
 
 // ALB
 
