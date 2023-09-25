@@ -148,11 +148,11 @@ module "alb" {
       port               = 80
       protocol           = "HTTP"
       target_group_index = 0 # App1 TG associated to this listener
-      redirect = {
-        port        = "443"
-        protocol    = "HTTPS"
-        status_code = "HTTP_301"
-      }
+      # redirect = {
+      #   port        = "443"
+      #   protocol    = "HTTPS"
+      #   status_code = "HTTP_301"
+      # }
     }
   ]
 
