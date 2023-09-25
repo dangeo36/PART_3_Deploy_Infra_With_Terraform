@@ -107,27 +107,30 @@ module "rds" {
 
 }
 
-# ACM Module - To create and Verify SSL Certificates
-# module "acm" {
+// ACM
 
-#   source  = "terraform-aws-modules/acm/aws"
-#   version = "> 3.0"
+module "acm" {
+  # source = "terraform-aws-modules/acm/aws"
+  # //version = "2.14.0"
+  # version = "3.0.0"
+  source  = "terraform-aws-modules/acm/aws"
+  version = "> 3.0"
 
-#   //if its a internal domain, which has dot at the end. we need to remove that like below
-#   domain_name = trimsuffix(data.aws_route53_zone.my_domain.name, ".")
-#   zone_id     = data.aws_route53_zone.my_domain.zone_id
+  //if its a internal domain, which has dot at the end. we need to remove that like below
+  domain_name = trimsuffix(data.aws_route53_zone.my_domain.name, ".")
+  zone_id     = data.aws_route53_zone.my_domain.zone_id
 
-#   subject_alternative_names = [
-#     "*.dfordevops.com" // certificate will be valid for any domain which ends with .dfordevops.com
-#   ]
-#   tags = {
-#     Name = "${var.env}-dg-acm"
-#   }
-# }
+  subject_alternative_names = [
+    "*.devops-danny.com" // certificate will be valid for any domain which ends with .dfordevops.com
+  ]
+  tags = {
+    Name = "${var.env_prefix}-dg-acm"
+  }
+}
 
-# output "certificate_arn" {
-#   value = module.acm.acm_certificate_arn
-# }
+output "certificate_arn" {
+  value = module.acm.acm_certificate_arn
+}
 
 // ALB
 
@@ -149,11 +152,11 @@ module "alb" {
       port               = 80
       protocol           = "HTTP"
       target_group_index = 0 # App1 TG associated to this listener
-      # redirect = {
-      #   port        = "443"
-      #   protocol    = "HTTPS"
-      #   status_code = "HTTP_301"
-      # }
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
     }
   ]
 
@@ -200,6 +203,79 @@ module "alb" {
         Name = "${var.env}-dg-targetgroup01"
       } # Target Group Tags
     },
-
+    
   ]
+
+  https_listeners = [
+    {
+      port               = 443
+      protocol           = "HTTPS"
+      certificate_arn    = module.acm.acm_certificate_arn
+      target_group_index = 0
+      action_type        = "fixed-response"
+      fixed_response = { // when it first comes to http(80) we want this fixed response
+        content_type = "text/plain"
+        message_body = "Fixed Static message - for Root Context"
+        status_code  = "200"
+      }
+    }
+  ]
+
+   https_listener_rules = [
+
+    {
+      https_listener_index = 0
+      actions = [
+        {
+          type               = "forward"
+          target_group_index = 0
+        }
+      ]
+      conditions = [{
+        path_patterns = ["*"]
+      }]
+    }
+  ]
+
+
+  tags = {
+    Name = "${var.env_prefix}-dg-alb"
+  }
+
 }
+
+output "target_group_arns" {
+  value = module.alb.target_group_arns
+}
+
+output "lb_arn_suffix" {
+  value = module.alb.lb_arn_suffix
+}
+
+output "target_group_arn_suffixes" {
+  value = module.alb.target_group_arn_suffixes
+}
+
+
+
+// Route 53
+
+data "aws_route53_zone" "my_domain" {
+  name         = "devops-danny.com"
+  private_zone = false
+}
+
+// retrive the zonid of my domain ====================
+output "mydomain_zoneid" {
+  description = "The Hosted Zone id of the desired Hosted Zone"
+  value       = data.aws_route53_zone.my_domain.zone_id
+}
+
+output "mydomain_name" {
+  description = "The Hosted domain name of the desired Hosted Zone"
+  value       = data.aws_route53_zone.my_domain.name
+}
+
+
+
+
