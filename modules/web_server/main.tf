@@ -15,7 +15,8 @@ resource "aws_instance" "dg_server_1" {
     ROOT_PASSWORD  = var.root_password
   })
   associate_public_ip_address = false
-  vpc_security_group_ids      = [var.security_group_web, module.security_group.dg_alb_sg_output]
+  # vpc_security_group_ids      = [var.security_group_web, module.security_group.dg_alb_sg_output]
+  vpc_security_group_ids   = var.security_groups
   iam_instance_profile        = var.iam_profile
   tags = {
     Name = "${var.env}-dg-app-1"
@@ -35,7 +36,8 @@ resource "aws_instance" "dg_server_2" {
   })
   associate_public_ip_address = false
   # vpc_security_group_ids      = [var.security_group_web, module.security_group.dg_alb_sg_output]
-  vpc_security_group_ids      = [module.security_group.dg_ec2_sg_output, module.security_group.dg_alb_sg_output]
+  # vpc_security_group_ids      = [module.security_group.dg_ec2_sg_output, module.security_group.dg_alb_sg_output]
+  vpc_security_group_ids   = var.security_groups
   iam_instance_profile        = var.iam_profile
   tags = {
     Name = "${var.env}-dg-app-2"
