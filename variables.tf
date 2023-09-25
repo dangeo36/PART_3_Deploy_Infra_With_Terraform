@@ -38,8 +38,3 @@ variable "subnet_6_cidr" {}
 variable "username" {}
 variable "password" {}
 variable "root_password" {}
-
-variable "security_groups" {
-  description = "List of security group IDs to associate with the instance."
-  type        = list(string)
-}
