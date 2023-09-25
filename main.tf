@@ -81,8 +81,8 @@ module "web_server" {
   instance_type = var.instance_type
   subnet_1_app  = module.private_subnets.dg_private_subnet_output_1
   subnet_2_app  = module.private_subnets.dg_private_subnet_output_2
-  security_group_web = module.security_group.dg_ec2_sg_output
-  vpc_security_group_ids = [module.security_group.dg_ec2_sg_output, module.security_group.dg_alb_sg_output]
+  # security_group_web = module.security_group.dg_ec2_sg_output
+  security_groups = [module.security_group.dg_ec2_sg_output, module.security_group.dg_alb_sg_output]
   iam_profile        = module.iam_role.instance_profile
   awsrds_endpoint    = module.rds.db_instance_endpoint
   username           = var.username
